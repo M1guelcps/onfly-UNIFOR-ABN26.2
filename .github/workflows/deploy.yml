@@ -1,16 +1,18 @@
+```yaml
 name: CI/CD Pipeline
 
 on:
   push:
     branches:
-      - main # Roda o script sempre que enviar código para a main
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
-      packages: write # Dá permissão para o robô salvar a imagem no GHCR
+      packages: write
 
     steps:
       - name: 1. Baixar o código
@@ -21,32 +23,32 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} # O GitHub gera essa senha sozinho!
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 3. Construir e Salvar a Imagem
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          # MUDE SEU_USUARIO PARA O SEU USUÁRIO EM MINÚSCULAS ABAIXO:
           tags: ghcr.io/m1guelcps/onfly-unifor-abn26.2:latest
 
       - name: 4. Atualizar aplicação na VPS
-              uses: appleboy/ssh-action@v1.2.2
-              with:
-                host: ${{ secrets.VPS_HOST }}
-                username: ${{ secrets.VPS_USERNAME }}
-                key: ${{ secrets.VPS_SSH_KEY }}
-                script: |
-                  cd /opt/paas/apps/projeto-auto
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/paas/apps/projeto-auto
 
-                  echo "Baixando nova imagem..."
-                  docker pull ghcr.io/m1guelcps/onfly-unifor-abn26.2:latest
+            echo "Baixando nova imagem..."
+            docker pull ghcr.io/m1guelcps/onfly-unifor-abn26.2:latest
 
-                  echo "Recriando aplicação..."
-                  docker compose up -d --force-recreate
+            echo "Recriando aplicação..."
+            docker compose up -d --force-recreate
 
-                  echo "Limpando imagens antigas..."
-                  docker image prune -f
+            echo "Limpando imagens antigas..."
+            docker image prune -f
 
-                  echo "Deploy concluído!"
+            echo "Deploy concluído!"
+```
