@@ -31,17 +31,22 @@ jobs:
           # MUDE SEU_USUARIO PARA O SEU USUÁRIO EM MINÚSCULAS ABAIXO:
           tags: ghcr.io/m1guelcps/onfly-unifor-abn26.2:latest
 
-      - name: 4. Acessar a VPS e Atualizar a Aplicação
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /opt/paas/apps/projeto-auto
-            # Usamos o token temporário do robô para a VPS conseguir baixar a imagem
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-            # Baixamos a imagem nova e recriamos o container
-            docker compose pull
-            docker compose up -d
+      - name: 4. Atualizar aplicação na VPS
+              uses: appleboy/ssh-action@v1.2.2
+              with:
+                host: ${{ secrets.VPS_HOST }}
+                username: ${{ secrets.VPS_USERNAME }}
+                key: ${{ secrets.VPS_SSH_KEY }}
+                script: |
+                  cd /opt/paas/apps/projeto-auto
+
+                  echo "Baixando nova imagem..."
+                  docker pull ghcr.io/m1guelcps/onfly-unifor-abn26.2:latest
+
+                  echo "Recriando aplicação..."
+                  docker compose up -d --force-recreate
+
+                  echo "Limpando imagens antigas..."
+                  docker image prune -f
+
+                  echo "Deploy concluído!"
