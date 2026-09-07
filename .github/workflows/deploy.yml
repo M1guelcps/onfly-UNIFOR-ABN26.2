@@ -51,4 +51,3 @@ jobs:
             docker image prune -f
 
             echo "Deploy concluído!"
-```
