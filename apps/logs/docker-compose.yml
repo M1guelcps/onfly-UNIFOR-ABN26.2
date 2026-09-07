@@ -1,27 +1,35 @@
+
 services:
-  Dozzle:
-    # Usamos a versão Alpine (muito mais leve que a versão padrão)
-    image: dozzle:latest
+  dozzle:
+    image: amir20/dozzle:latest
+
     container_name: dozzle
+
     restart: unless-stopped
-    environment:
-      # Usuário e senha para acessar o Dozzle
-      DOZZLE_USER: admin
-      DOZZLE_PASSWORD: "pzu1tPsMBGY17BMN1U2pWU0JCS2sIg"
+
     volumes:
-      # Os dados do banco ficarão salvos na pasta 'data' dentro de /opt/paas/postgres
-      # Se o container for apagado, seus dados continuam seguros aqui!
-      - ./var/run/docker.sock:/var/run/docker.sock:ro
+      # Permite ao Dozzle visualizar os containers e seus logs.
+      # :ro = somente leitura.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
     networks:
-      # O banco fica na mesma rede do Traefik e dos apps
       - proxy
-    # NOTA: Não existe a tag 'ports' aqui! Acesso estritamente interno.
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'    # Pode usar até metade de 1 núcleo
-          memory: 400M   # Limite generoso, mas controlado para proteger a VPS
+
+    labels:
+      - "traefik.enable=true"
+
+      # Endereço do painel
+      - "traefik.http.routers.dozzle.rule=Host(`dozzle.gmsys.com.br`)"
+
+      # HTTPS
+      - "traefik.http.routers.dozzle.entrypoints=websecure"
+      - "traefik.http.routers.dozzle.tls=true"
+      - "traefik.http.routers.dozzle.tls.certresolver=myresolver"
+
+      # Porta interna do Dozzle
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
 
 networks:
   proxy:
     external: true
+
