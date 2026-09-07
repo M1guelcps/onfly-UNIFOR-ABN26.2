@@ -2,7 +2,7 @@ services:
   app-auto:
     # Aqui está a mágica: em vez de uma imagem genérica do nginx, 
     # vamos usar a imagem ESPECÍFICA deste projeto que o GitHub vai gerar.
-    image: ghcr.io/m1guelcps/onfly-UNIFOR-ABN26.2:latest
+    image: ghcr.io/m1guelcps/onfly-unifor-abn26.2:latest
     container_name: app-auto
     restart: unless-stopped
     deploy:
@@ -15,6 +15,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.appauto.rule=Host('auto.seusite.com')"
+      - "traefik.http.services.appauto.loadbalancer.server.port=80"
       - "traefik.http.routers.appauto.entrypoints=websecure"
       - "traefik.http.routers.appauto.tls.certresolver=myresolver"
 
