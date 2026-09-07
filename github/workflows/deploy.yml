@@ -29,7 +29,7 @@ jobs:
           context: .
           push: true
           # MUDE SEU_USUARIO PARA O SEU USUÁRIO EM MINÚSCULAS ABAIXO:
-          tags: ghcr.io/SEU_USUARIO/projeto-auto:latest
+          tags: ghcr.io/m1guelcps/onfly-UNIFOR-ABN26.2:latest
 
       - name: 4. Acessar a VPS e Atualizar a Aplicação
         uses: appleboy/ssh-action@v1.0.3
