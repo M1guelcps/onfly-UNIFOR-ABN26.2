@@ -2,7 +2,7 @@ services:
   app-auto:
     # Aqui está a mágica: em vez de uma imagem genérica do nginx, 
     # vamos usar a imagem ESPECÍFICA deste projeto que o GitHub vai gerar.
-    image: ghcr.io/M1guelcps/projeto-auto:latest
+    image: ghcr.io/m1guelcps/projeto-auto:latest
     container_name: app-auto
     restart: unless-stopped
     deploy:
