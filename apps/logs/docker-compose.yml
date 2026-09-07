@@ -1,0 +1,27 @@
+services:
+  Dozzle:
+    # Usamos a versão Alpine (muito mais leve que a versão padrão)
+    image: dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    environment:
+      # Usuário e senha para acessar o Dozzle
+      DOZZLE_USER: admin
+      DOZZLE_PASSWORD: "pzu1tPsMBGY17BMN1U2pWU0JCS2sIg"
+    volumes:
+      # Os dados do banco ficarão salvos na pasta 'data' dentro de /opt/paas/postgres
+      # Se o container for apagado, seus dados continuam seguros aqui!
+      - ./var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      # O banco fica na mesma rede do Traefik e dos apps
+      - proxy
+    # NOTA: Não existe a tag 'ports' aqui! Acesso estritamente interno.
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'    # Pode usar até metade de 1 núcleo
+          memory: 400M   # Limite generoso, mas controlado para proteger a VPS
+
+networks:
+  proxy:
+    external: true
