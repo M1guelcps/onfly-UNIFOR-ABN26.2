@@ -1,0 +1,37 @@
+
+services:
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # O Traefik precisa ler o que acontece no Docker para criar as rotas:
+      # O modo ":ro" (read-only) garante que ele só lê, não pode alterar o Docker.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Monta o arquivo onde os certificados serão salvos:
+      - ./acme.json:/letsencrypt/acme.json
+    command:
+      # Não expõe os containers automaticamente, exige que a gente coloque as 'labels' neles:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      # Define os pontos de entrada (Porta 80 e 443):
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # Força o redirecionamento de tudo de HTTP para HTTPS:
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      # Configura o Let's Encrypt (chamado aqui de 'myresolver'):
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=miguelcavalcanteps@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+
+networks:
+  proxy:
+    external: true

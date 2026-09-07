@@ -1,0 +1,23 @@
+services:
+  app-auto:
+    # Aqui está a mágica: em vez de uma imagem genérica do nginx, 
+    # vamos usar a imagem ESPECÍFICA deste projeto que o GitHub vai gerar.
+    image: ghcr.io/m1guelcps/projeto-auto:latest
+    container_name: app-auto
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 50M
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.appauto.rule=Host('auto.seusite.com')"
+      - "traefik.http.routers.appauto.entrypoints=websecure"
+      - "traefik.http.routers.appauto.tls.certresolver=myresolver"
+
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,27 @@
+services:
+  app-teste:
+    image: nginx:alpine
+    container_name: app-teste-joao
+    restart: unless-stopped
+    # Limitando recursos para proteger nossos 4GB de RAM!
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1' # Máximo de 10% de 1 núcleo da CPU
+          memory: 50M # Máximo de 50 Megabytes de RAM
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      # A regra mágica: substitua pelo seu subdomínio!
+      - "traefik.http.routers.appteste.rule=Host(`teste.gmsys.com.br`)"
+      # Diz ao Traefik para rotear via HTTPS (porta 443 configurada antes)
+      - "traefik.http.routers.appteste.entrypoints=websecure"
+      # Pede ao Let's Encrypt para gerar o SSL para este subdomínio
+      - "traefik.http.routers.appteste.tls.certresolver=myresolver"
+
+networks:
+  proxy:
+    external: true
